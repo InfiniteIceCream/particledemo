@@ -1,0 +1,58 @@
+---
+title: Circle Illusion
+layout: sketch.njk
+---
+
+{% block sketch %}
+
+<script>
+  function setup() {
+    var myCanvas = createCanvas(400, 400);
+    myCanvas.parent("sketch-holder");
+  }
+
+  function draw() {
+    frameCount -= 0.98;
+    noStroke();
+    fill(255, 255, 255, 10);
+    rect(0, 0, 400, 400);
+    fill(0, 0, 0);
+    for (var i = 0; i < 360; i += 36) {
+      stroke(0, 0, 0);
+      line(cos(i) * 200 + 200, sin(i) * 200 + 200, -cos(i) * 200 + 200, -sin(i) * 200 + 200);
+      noStroke();
+      ellipse(cos(i) * sin(frameCount + i) * 200 + 200, sin(i) * sin(frameCount + i) * 200 + 200, 10, 10);
+    }
+    stroke(0, 0, 0);
+    fill(0, 0, 0, 0);
+    ellipse(sin(frameCount) * 100 + 200, cos(frameCount) * 100 + 200, 200, 200);
+  }
+  </script>
+  <p>It looks like the small circles are moving in a circle, but they're really moving in straight lines.</p>
+
+{% endblock sketch %}
+
+
+{% block content %}
+<div id="sketch-holder"></div>
+<pre><code>
+  function draw() {
+    frameCount -= 0.975;
+    noStroke();
+    fill(255, 255, 255, 10);
+    rect(0, 0, 400, 400);
+    fill(0, 0, 0);
+    for (var i = 0; i < 360; i += 36) {
+      stroke(0, 0, 0);
+      line(cos(i) * 200 + 200, sin(i) * 200 + 200, -cos(i) * 200 + 200, -sin(i) * 200 + 200);
+      noStroke();
+      ellipse(cos(i) * sin(frameCount + i) * 200 + 200, sin(i) * sin(frameCount + i) * 200 + 200, 10, 10);
+    }
+    stroke(0, 0, 0);
+    fill(0, 0, 0, 0);
+    ellipse(sin(frameCount) * 100 + 200, cos(frameCount) * 100 + 200, 200, 200);
+  }
+
+
+</code></pre>
+{% endblock content %}

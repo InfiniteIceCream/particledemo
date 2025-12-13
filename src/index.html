@@ -1,0 +1,14 @@
+---
+title: "Calvin's Gallery"
+layout: "base.njk"
+---
+
+<p>These are some animations I made:</p>
+
+<ul>
+  {%- for sketch in collections.sketch -%}
+  <li>
+    <a href="{{ sketch.url | url }}"> {{ sketch.data.title }} </a>
+  </li>
+  {%- endfor -%}
+</ul>

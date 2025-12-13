@@ -1,0 +1,61 @@
+---
+title: Light Animation
+layout: sketch.njk
+---
+
+{% block sketch %}
+
+  <script>
+      var distFromCenter;
+
+  function setup() {
+    var myCanvas = createCanvas(400, 400);
+    background(0, 0, 0);
+    noStroke();
+    ellipseMode(CENTER);
+    myCanvas.parent("sketch-holder");
+  }
+  
+  function draw() {
+    frameCount -= 0.98;
+    fill(0, 0, 0, sin(frameCount)*20+10);
+    rect(0, 0, 400, 400);
+    for (var i = 0; i < 360; i++) {
+        push();
+        translate(200, 200);
+        rotate(i*sin(frameCount)/1000+frameCount*i/100);
+        distFromCenter = sin(frameCount+i)*100+50;
+        fill(255, 255, 255-distFromCenter/2, 10);
+        ellipse(distFromCenter, distFromCenter, distFromCenter+1, sin(frameCount*10+distFromCenter)*10);
+        pop();
+    }
+    fill(0, 0, 0, sin(frameCount+180)*555-300);
+    }
+  </script>
+{% endblock sketch %}
+
+{% block content %}
+<div id="sketch-holder"></div>
+<pre><code>
+  var distFromCenter;
+  background(0, 0, 0);
+  noStroke();
+  ellipseMode(CENTER);
+  
+  function draw() {
+    frameCount -= 0.98;
+    fill(0, 0, 0, sin(frameCount)*20+10);
+    rect(0, 0, 400, 400);
+    for (var i = 0; i < 360; i++) {
+        push();
+        translate(200, 200);
+        rotate(i*sin(frameCount)/1000+frameCount*i/100);
+        distFromCenter = sin(frameCount+i)*100+50;
+        fill(255, 255, 255-distFromCenter/2, 10);
+        ellipse(distFromCenter, distFromCenter, distFromCenter+1, sin(frameCount*10+distFromCenter)*10);
+        pop();
+    }
+    fill(0, 0, 0, sin(frameCount+180)*555-300);
+    }
+</code></pre>
+{% endblock content %}

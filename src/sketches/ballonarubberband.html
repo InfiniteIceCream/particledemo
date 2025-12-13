@@ -1,0 +1,105 @@
+---
+title: Ball on a Rubber Band (interactive)
+layout: sketch.njk
+---
+
+{% block sketch %}
+
+  <script>
+    var tx = 0;
+    var ty = 0;
+    var x = 0;
+    var y = 0;
+    var xv = 0;
+    var yv = 0;
+
+  function setup() {
+    var myCanvas = createCanvas(400, 400);
+    myCanvas.parent("sketch-holder");
+    ellipseMode(CENTER);
+  }
+  function draw() {
+    frameCount -= 0.98;
+    fill(255, 255, 255, 25.5);
+    rect(-10, -10, 420, 420);
+    
+    tx = mouseX;
+    ty = mouseY;
+    
+    yv += 0.15;
+    
+    if (mouseIsPressed) {
+    xv += (tx - x)/500;
+    yv += (ty - y)/500;
+    }
+    
+    x += xv;
+    y += yv;
+    
+    x = constrain(x, 5, 395);
+    y = constrain(y, 5, 395);
+    
+    if (x === 5) {xv *= -0.5;}
+    if (x === 395) {xv *= -0.5;}
+    if (y === 5) {yv *= -0.5;}
+    if (y === 395) {yv *= -0.5;}
+    
+    
+    fill(0, 0, 0);
+    ellipse(x, y, 10, 10);
+    
+    if (mouseIsPressed) {
+    line(x, y, tx, ty);
+    }
+  }
+  </script>
+{% endblock sketch %}
+
+{% block content %}
+<p >Click in the canvas to pull the ball with a rubber band.</p>
+<div id="sketch-holder"></div>
+<pre><code>
+  var tx = 0;
+  var ty = 0;
+  var x = 0;
+  var y = 0;
+  var xv = 0;
+  var yv = 0;
+  ellipseMode(CENTER);
+
+  function draw() {
+    frameCount -= 0.98;
+    fill(255, 255, 255, 25.5);
+    rect(-10, -10, 420, 420);
+    
+    tx = mouseX;
+    ty = mouseY;
+    
+    yv += 0.15;
+    
+    if (mouseIsPressed) {
+    xv += (tx - x)/500;
+    yv += (ty - y)/500;
+    }
+    
+    x += xv;
+    y += yv;
+    
+    x = constrain(x, 5, 395);
+    y = constrain(y, 5, 395);
+    
+    if (x === 5) {xv *= -0.5;}
+    if (x === 395) {xv *= -0.5;}
+    if (y === 5) {yv *= -0.5;}
+    if (y === 395) {yv *= -0.5;}
+    
+    
+    fill(0, 0, 0);
+    ellipse(x, y, 10, 10);
+    
+    if (mouseIsPressed) {
+    line(x, y, tx, ty);
+    }
+  }
+</code></pre>
+{% endblock content %}

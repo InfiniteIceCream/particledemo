@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!-- This is based on DillingerLee's great template here:
+https://github.com/Team-Code/KA_Offline -->
+<html>
+
+<head>
+<title>{{ title }}</title>
+<style>
+    .text {
+        color: rgb(0, 0, 255);
+    }
+
+    h1 {
+        text-shadow: 5px 5px 5px black;
+    }
+
+    #menu-bar {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        width: 147px;
+        background-color: #f1f1f1;
+        overflow: auto;
+        border: 1px solid #555;
+    }
+    
+    .menu-bar-item {
+        display: block;
+        color: #000;
+        padding: 8px 16px;
+        text-decoration: none;
+        display: inline;
+        float: left;
+        display: block;
+        padding: 8px;
+        background-color: #dddddd;
+    }
+
+    .menu-bar-item:hover {
+        background-color: #555;
+        color: white;
+    }
+</style>
+{% block head %}
+<!-- This is the default head content. -->
+{% endblock %}
+</head>
+
+<body>
+    <header>
+        <div class="menu">
+        <ul id="menu-bar">
+            <li><a href="{{ '/' | url }}" class="menu-bar-item">Animations</a></li>
+            <li><a href="{{ '/about/' | url }}" class="menu-bar-item">About</a></li>
+        <ul>
+        </div>
+        <h1 class="text"> {{ title }}</h1>
+    </header>
+    <main>
+        {{ content | safe }}
+        
+    </main>
+
+</body>
+
+</html>

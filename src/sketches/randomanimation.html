@@ -1,0 +1,66 @@
+---
+title: Spinning Circle Lines
+layout: sketch.njk
+---
+
+{% block sketch %}
+  <script>
+  function setup() {
+    var myCanvas = createCanvas(400, 400);
+    noStroke();
+    colorMode(HSB);
+    myCanvas.parent("sketch-holder");
+  }
+  
+  function draw() {
+    frameCount -= 0.98;
+    clear();
+    background(0, 0, 0);
+    for (var j=0; j < 100; j+=10) {
+
+    for (var i=0; i < 360; i += 10) {
+    var x = cos(frameCount+i)*j + sin(frameCount)*i + 200;
+    var y = sin(frameCount+i)*j + cos(frameCount)*i + 200;
+    
+    fill(frameCount * 10 % 400, 255, 255);
+    
+    ellipse(x, y, 10, 10);
+    ellipse(-x+400, y, 10, 10);
+    ellipse(x, -y+400, 10, 10);
+    ellipse(-x+400, -y+400, 10, 10);
+}} 
+  }
+  
+  </script>
+{% endblock sketch %}
+
+{% block content %}
+<div id="sketch-holder"></div>
+<pre><code>
+  function setup() {
+    var myCanvas = createCanvas(400, 400);
+    noStroke();
+    colorMode(HSB);
+    myCanvas.parent("sketch-holder");
+  }
+  
+  function draw() {
+    frameCount -= 0.98;
+    clear();
+    background(0, 0, 0);
+    for (var j=0; j < 100; j+=10) {
+
+    for (var i=0; i < 360; i += 10) {
+    var x = cos(frameCount+i)*j + sin(frameCount)*i + 200;
+    var y = sin(frameCount+i)*j + cos(frameCount)*i + 200;
+    
+    fill(frameCount * 10 % 400, 255, 255);
+    
+    ellipse(x, y, 10, 10);
+    ellipse(-x+400, y, 10, 10);
+    ellipse(x, -y+400, 10, 10);
+    ellipse(-x+400, -y+400, 10, 10);
+}} 
+  }
+</code></pre>
+{% endblock content %}

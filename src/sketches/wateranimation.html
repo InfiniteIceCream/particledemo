@@ -1,0 +1,61 @@
+---
+title: Water Animation
+layout: sketch.njk
+---
+
+{% block sketch %}
+
+  <script>
+    var z;
+  function setup() {
+    var myCanvas = createCanvas(400, 400);
+    noStroke();
+    myCanvas.parent("sketch-holder");
+  }
+  
+  function draw() {
+    frameCount -= 0.98;
+    clear();
+    background(0, 0, 0);
+    z = frameCount/5;
+    for (var x = -1; x < 5; x+=0.1) {
+            for (var y = -0.5; y < 5; y+=0.1) {
+                fill(0,
+                noise(x, y, z)*255,
+                noise(x, y, z)*255);
+                
+            ellipse(x*100+sin(frameCount/2+y)*25,
+            y*100+cos(frameCount/2+x*2)*25,
+            100, 10);
+        }
+    }
+  }
+  
+  </script>
+{% endblock sketch %}
+
+{% block content %}
+<div id="sketch-holder"></div>
+<pre><code>
+    var z;
+    noStroke();
+  
+  function draw() {
+    frameCount -= 0.98;
+    clear();
+    background(0, 0, 0);
+    z = frameCount/5;
+    for (var x = -1; x < 5; x+=0.1) {
+            for (var y = -0.5; y < 5; y+=0.1) {
+                fill(0,
+                noise(x, y, z)*255,
+                noise(x, y, z)*255);
+                
+            ellipse(x*100+sin(frameCount/2+y)*25,
+            y*100+cos(frameCount/2+x*2)*25,
+            100, 10);
+        }
+    }
+  }
+</code></pre>
+{% endblock content %}

@@ -1,0 +1,57 @@
+---
+title: 3D Spinning Thing
+layout: sketch.njk
+---
+
+{% block sketch %}
+
+  <script>
+
+  function setup() {
+    var myCanvas = createCanvas(400, 400);
+    myCanvas.parent("sketch-holder");
+  }
+  
+  function draw() {
+    frameCount -= 0.98;
+    background(0, 0, 0);
+    stroke(255, 255, 255);
+    
+    for (var j = 0; j < 10; j += 1) {
+        push();
+        translate(200, 200);
+        rotate(frameCount); 
+        for(var i = 0; i < 360; i += 1) {
+            point(
+            cos(3*i+frameCount*5)*(10+sin(frameCount*5)*2.5)*j+sin(frameCount),
+            sin(2*i+frameCount)*(10+sin(frameCount*5)*2.5)*j+cos(frameCount));
+        }
+        pop();
+    }
+  }
+  </script>
+{% endblock sketch %}
+
+{% block content %}
+<p>Note: This isn't real 3D graphics.</p>
+<div id="sketch-holder"></div>
+<pre><code>
+  function draw() {
+    frameCount -= 0.98;
+    background(0, 0, 0);
+    stroke(255, 255, 255);
+    
+    for (var j = 0; j < 10; j += 1) {
+        push();
+        translate(200, 200);
+        rotate(frameCount); 
+        for(var i = 0; i < 360; i += 1) {
+            point(
+            cos(3*i+frameCount*5)*(10+sin(frameCount*5)*2.5)*j+sin(frameCount),
+            sin(2*i+frameCount)*(10+sin(frameCount*5)*2.5)*j+cos(frameCount));
+        }
+        pop();
+    }
+  }
+</code></pre>
+{% endblock content %}

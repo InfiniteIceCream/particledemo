@@ -1,0 +1,14 @@
+{
+  "name": "ctcgallery",
+  "version": "0.1.0",
+  "description": "Gallery of Processing.js animations",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Calvin",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.2"
+  }
+}
