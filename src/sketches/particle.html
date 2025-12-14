@@ -7,17 +7,47 @@ layout: sketch.njk
 
   <script>
 
-function draw() {
-  background(220);
-  ellipse(mouseX, mouseY, 10, 10);
-}
+  let nextMass
+  let nextCharge
+
+  function setup() {
+    let myCanvas = createCanvas(400, 400);
+    myCanvas.parent("sketch-holder");
+    
+    let particles = []
+  }
+  
+  
+  function draw() {
+    background(240)
+    ellipse(mouseX, mouseY, 10, 10)
+  }
+
+  class Particle {
+    constructor(x, y, mass, charge) {
+      this.posX = x
+      this.posY = y
+      this.velocityX = createVector(0, 0)
+      this.velocityY = createVector(0, 0)
+      this.mass = mass
+      this.charge = charge
+    }
+  }
+
+
+  // create new particle on click
+  function mousePressed() {
+  fill(random(0, 255))
+  particles.push(new Particle(mouseX, mouseY, nextMass, nextCharge))
+  }
 
   </script>
 {% endblock sketch %}
 
 {% block content %}
-<p>Note: .</p>
+<p>Click to spawn a particle!</p>
+<div id="sketch-holder"></div>
+<pre><code>
 
 </code></pre>
 {% endblock content %}
-
