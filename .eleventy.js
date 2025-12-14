@@ -1,8 +1,8 @@
-module.exports = function(eleventyConfig) {
-    return {
-        dir: {
-            input: "src",
-          },
-        pathPrefix: "/ctcgallery/"
-    }
+module.exports = function (eleventyConfig) {
+  return {
+    dir: {
+      input: "src",
+    },
+    pathPrefix: "/particledemo/",
   };
+};
