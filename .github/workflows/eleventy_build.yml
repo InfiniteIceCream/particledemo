@@ -1,9 +1,12 @@
 name: Eleventy Build
-on: [push]
+on:
+  push:
+    branches:
+      - release
 
 jobs:
   build_deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
       - name: Build
