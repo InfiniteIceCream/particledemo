@@ -7,54 +7,49 @@ layout: sketch.njk
 
   <script>
 
-  let nextMass = 10
-  let nextCharge = 10
+  let nextMass
+  let nextChargeDensity
   let particles = []
 
+
   class Particle {
-    constructor(x, y, mass, charge) {
+    constructor(x, y, mass, chargeDensity) {
       this.position = createVector(x, y)
       this.velocity = createVector(0, 0)
-      this.acceleration = createvector(0, 0)
+      this.acceleration = createVector(0, 0)
       this.mass = mass
-      this.charge = charge
+      this.chargeDensity = chargeDensity
+      this.charge = this.chargeDensity * mass
     }
-  }
 
+    update() {
 
-  Particle.prototype.update = function() {
+      // find net force from other particles
+      let netForce = createVector(0, 0)
+      for (let i = 0; i < particles.length; i++) {
+        let p = particles[i]
+        let sideA = p.position.x - this.position.x
+        let sideB = p.position.y - this.position.y
+        let dist = sqrt(sideA**2 + sideB**2) // Pythagorean theorem
 
-    // find net force from other particles
-    let netForce = createVector(0, 0)
-    for (let i = 0; i < particles.length; i++) {
-      let p = particles[i]
-
-      // Pythagorean theorem
-      let sideA = p.position.x - this.position.x
-      let sideB = p.position.y - this.position.y
-      let dist = sqrt(sideA**2 + sideB**2)
-
-      // only find force from particles in a different position
-      if (dist !== 0) {
-        let angle = atan(sideB/sideA)
-        let force = (this.charge * p.charge)/dist // positive force = push, negative force = pull
-        let forceVector = createVector(force*cos(angle), force*sin(angle))
-        netForce.add(forceVector)
+        if (dist !== 0) { // only find force from particles in a different position
+          let angle = atan(sideB/sideA)
+          let force = (this.charge * p.charge)/dist // positive force = push, negative force = pull
+          let forceVector = createVector(force*cos(angle), force*sin(angle))
+          netForce.add(forceVector)
+        }
       }
+
+      this.acceleration = createVector(netForce.x/this.mass, netForce.y/this.mass)
+      this.velocity.add(this.acceleration)
+      this.position.add(this.velocity.mult(0.01))
     }
 
-    // update particle movement
-    this.acceleration = createVector(netForce.x/this.mass, netForce.y/this.mass)
-    this.velocity.add(this.acceleration)
-    this.position.add(this.velocity)
-  }
-
-  
-// display particle
-  Particle.prototype.display = function() {
-    noStroke()
-    fill(128+this.charge, 128-this.charge, 128-this.charge)
-    ellipse(this.position.x, this.position.y, mass, mass)
+    display() {
+      noStroke()
+      fill(128+this.chargeDensity, 128-this.chargeDensity, 128-this.chargeDensity)
+      ellipse(this.position.x, this.position.y, this.mass, this.mass)
+    }
   }
 
 
@@ -63,23 +58,31 @@ layout: sketch.njk
     myCanvas.parent("sketch-holder")
   }
   
+
   function draw() {
+
     background(240)
     for (i = 0; i < particles.length; i++) {
-      particles[i].update
-      particles[i].display
+      particles[i].update()
+      particles[i].display()
     }
+
+    noStroke()
+    fill(0, 0, 0)
     ellipse(mouseX, mouseY, 10, 10)
-    text(particles.length, 50, 50)
+    text("Number of particles:" + particles.length, 10, 20)
+
+    if (keyIsDown(LEFT_ARROW)) {
+      particles = []
+    }
   }
 
 
   // create new particle on click
   function mousePressed() {
-    nextMass = random(1, 10)
-    nextCharge = random(-128, 128)
-    // particles.push(new Particle(mouseX, mouseY, nextMass, nextCharge))
-    particles.push("item")
+    nextMass = random(1, 20)
+    nextChargeDensity = random(-128, 128)
+    particles.push(new Particle(mouseX, mouseY, nextMass, nextChargeDensity))
   }
 
   </script>
