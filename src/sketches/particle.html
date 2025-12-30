@@ -30,12 +30,20 @@ layout: sketch.njk
         let p = particles[i]
         let sideA = p.position.x - this.position.x
         let sideB = p.position.y - this.position.y
-        let dist = sqrt(sideA**2 + sideB**2) // Pythagorean theorem
+        let hypotenuse = createVector(sideA, sideB)
+        let dist = hypotenuse.mag()
 
         if (dist !== 0) { // only find force from particles in a different position
-          let angle = atan(sideB/sideA)
+          let angle = hypotenuse.heading()
           let force = (this.charge * p.charge)/dist // positive force = push, negative force = pull
           let forceVector = createVector(force*cos(angle), force*sin(angle))
+
+          if (dist < (this.mass + p.mass) / 2) { // if particles are overlapping
+            let collisionSpeed = 0
+            let collisionForce = p5.Vector.fromAngle(angle, collisionSpeed)
+            forceVector.add(collisionForce)
+          }
+          
           netForce.add(forceVector)
         }
       }
@@ -72,6 +80,7 @@ layout: sketch.njk
     ellipse(mouseX, mouseY, 10, 10)
     text("Number of particles:" + particles.length, 10, 20)
 
+    // clear particles
     if (keyIsDown(LEFT_ARROW)) {
       particles = []
     }
