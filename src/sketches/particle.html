@@ -6,7 +6,7 @@ layout: sketch.njk
 {% block sketch %}
 
   <script>
-
+                                                              // Increase canvas size?
   let nextMass
   let nextChargeDensity
   let particles = []
@@ -18,6 +18,7 @@ layout: sketch.njk
       this.velocity = createVector(0, 0)
       this.acceleration = createVector(0, 0)
       this.mass = mass
+      this.radius = sqrt(mass)*10
       this.chargeDensity = chargeDensity
       this.charge = this.chargeDensity * mass
     }
@@ -35,13 +36,15 @@ layout: sketch.njk
 
         if (dist !== 0) { // only find force from particles in a different position
           let angle = hypotenuse.heading()
-          let force = (this.charge * p.charge)/dist // positive force = push, negative force = pull
+          let force = -(this.charge * p.charge)/dist // positive force = pull, negative force = push
           let forceVector = createVector(force*cos(angle), force*sin(angle))
 
-          if (dist < (this.mass + p.mass) / 2) { // if particles are overlapping
-            let collisionSpeed = 0
-            let collisionForce = p5.Vector.fromAngle(angle, collisionSpeed)
-            forceVector.add(collisionForce)
+          if (dist < (this.radius + p.radius) / 2) { // check for collision
+            let relativeVelocity = this.velocity.sub(p.velocity)
+            let collisionVel = relativeVelocity.dot(hypotenuse)
+            let collisionVelVector = p5.Vector.fromAngle(angle, collisionVel)
+            this.velocity.sub(collisionVelVector)
+            p.velocity.add(collisionVelVector)
           }
           
           netForce.add(forceVector)
@@ -49,14 +52,14 @@ layout: sketch.njk
       }
 
       this.acceleration = createVector(netForce.x/this.mass, netForce.y/this.mass)
-      this.velocity.add(this.acceleration)
-      this.position.add(this.velocity.mult(0.01))
+      this.velocity.add(this.acceleration) // Is velocity being set to accelaration for some reason?
+      this.position.add(this.velocity.mult(0.0001))
     }
 
     display() {
       noStroke()
       fill(128+this.chargeDensity, 128-this.chargeDensity, 128-this.chargeDensity)
-      ellipse(this.position.x, this.position.y, this.mass, this.mass)
+      ellipse(this.position.x, this.position.y, this.radius, this.radius)
     }
   }
 
@@ -65,7 +68,12 @@ layout: sketch.njk
     let myCanvas = createCanvas(400, 400)
     myCanvas.parent("sketch-holder")
   }
-  
+
+  let massSliderX = 25
+  let chargeSliderX = 25
+  let draggingMassSlider = false
+  let draggingChargeSlider = false
+
 
   function draw() {
 
@@ -77,21 +85,83 @@ layout: sketch.njk
 
     noStroke()
     fill(0, 0, 0)
-    ellipse(mouseX, mouseY, 10, 10)
-    text("Number of particles:" + particles.length, 10, 20)
+    text("Number of particles: " + particles.length, 10, 20)
+    text("Charge slider x: " + chargeSliderX, 10, 40)
+
+
+    // sliders
+    fill(192)
+    rect(0, 250, width, 150)
+
+    stroke(0)
+    fill(128)
+    rect(20, 300, 150, 10, 10)
+    rect(20, 350, 150, 10, 10)
+
+    if (sqrt((mouseX-massSliderX)**2+(mouseY-305)**2) < 7.5) {
+      fill(64)
+      if (mouseIsPressed) {
+        draggingMassSlider = true
+      }
+    } else {
+      fill(96)
+    }
+    ellipse(massSliderX, 305, 15, 15)
+
+    if (draggingMassSlider) {
+      massSliderX = max(min(mouseX, 165), 25)
+      if (mouseIsPressed === false) {
+        draggingMassSlider = false
+      }
+    }
+
+
+    if (sqrt((mouseX-chargeSliderX)**2+(mouseY-355)**2) < 7.5) {
+      fill(64)
+      if (mouseIsPressed) {
+        draggingChargeSlider = true
+      }
+    } else {
+      fill(96)
+    }
+    ellipse(chargeSliderX, 355, 15, 15)
+
+    if (draggingChargeSlider) {
+      chargeSliderX = max(min(mouseX, 165), 25)
+      if (mouseIsPressed === false) {
+        draggingChargeSlider = false
+      }
+    }
+
+
+    nextMass = map(massSliderX, 25, 165, 1, 10)
+    nextChargeDensity = map(chargeSliderX, 25, 165, -128, 128)
+
+    noStroke()
+    fill(0)
+    text("Next mass: " + floor(nextMass), 20, 290)
+    text("Next charge: " + floor(nextChargeDensity), 20, 340)
+    
+
+    if (sqrt((mouseX-25)**2+(mouseY-355)**2) < 7.5) {
+      fill(64)
+    } else {
+      fill(96)
+    }
+    ellipse(chargeSliderX, 355, 15, 15)
+
 
     // clear particles
-    if (keyIsDown(LEFT_ARROW)) {
+    if (keyIsDown(UP_ARROW)) {
       particles = []
     }
   }
 
-
   // create new particle on click
   function mousePressed() {
-    nextMass = random(1, 20)
-    nextChargeDensity = random(-128, 128)
-    particles.push(new Particle(mouseX, mouseY, nextMass, nextChargeDensity))
+    if (mouseY < 250) {
+      particles.push(new Particle(mouseX, mouseY, nextMass, nextChargeDensity))
+    }
   }
 
   </script>
