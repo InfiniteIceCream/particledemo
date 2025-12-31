@@ -9,7 +9,7 @@ layout: sketch.njk
 
 
   <script>
-                                                              // Increase canvas size?
+
   let nextMass
   let nextChargeDensity
   let particles = []
@@ -47,22 +47,31 @@ layout: sketch.njk
             let relativeVelocity = this.velocity.sub(p.velocity)
             this.velocity.add(p.velocity)
             let collisionVel = relativeVelocity.dot(hypotenuse)
-            let collisionVelVector = p5.Vector.fromAngle(angle, collisionVel/2)
-            this.velocity.sub(collisionVelVector.div(this.mass))
-            collisionVelVector.mult(this.mass)
-            p.velocity.add(collisionVelVector.div(p.mass))
-            this.collisions += 1
-            p.collisions += 1
+            if (collisionVel > 0) {
+              let collisionVelVector = p5.Vector.fromAngle(angle, collisionVel/2)
+              this.velocity.sub(collisionVelVector.div(this.mass))
+              collisionVelVector.mult(this.mass)
+              p.velocity.add(collisionVelVector.div(p.mass))
+              this.collisions += 1
+              p.collisions += 1
+            }
           }
 
           netForce.add(forceVector)
         }
       }
 
+      if ((this.position.x < 0 + this.radius/2 && this.velocity.x < 0) || (this.position.x > width - this.radius/2 && this.velocity.x > 0)) {
+        this.velocity.x *= -1
+      }
+
+      if ((this.position.y < 0 + this.radius/2 && this.velocity.y < 0) || (this.position.y > height - 150 - this.radius/2 && this.velocity.y > 0)) {
+        this.velocity.y *= -1
+      }
+
       this.acceleration = createVector(netForce.x/this.mass, netForce.y/this.mass)
-      this.velocity.add(this.acceleration) // Is velocity being set to accelaration for some reason?
+      this.velocity.add(this.acceleration)
       this.position.add(this.velocity)
-      
     }
 
     display() {
@@ -76,7 +85,7 @@ layout: sketch.njk
 
 
   function setup() {
-    let myCanvas = createCanvas(400, 400)
+    let myCanvas = createCanvas(1000, 600)
     myCanvas.parent("sketch-holder")
   }
 
@@ -101,14 +110,14 @@ layout: sketch.njk
 
     // sliders
     fill(192)
-    rect(0, 250, width, 150)
+    rect(0, height-150, width, 150)
 
     stroke(0)
     fill(128)
-    rect(20, 300, 150, 10, 10)
-    rect(20, 350, 150, 10, 10)
+    rect(20, 500, 150, 10, 10)
+    rect(20, 550, 150, 10, 10)
 
-    if (sqrt((mouseX-massSliderX)**2+(mouseY-305)**2) < 7.5) {
+    if (sqrt((mouseX-massSliderX)**2+(mouseY-505)**2) < 7.5) {
       fill(64)
       if (mouseIsPressed) {
         draggingMassSlider = true
@@ -116,7 +125,7 @@ layout: sketch.njk
     } else {
       fill(96)
     }
-    ellipse(massSliderX, 305, 15, 15)
+    ellipse(massSliderX, 505, 15, 15)
 
     if (draggingMassSlider) {
       massSliderX = max(min(mouseX, 165), 25)
@@ -126,7 +135,7 @@ layout: sketch.njk
     }
 
 
-    if (sqrt((mouseX-chargeSliderX)**2+(mouseY-355)**2) < 7.5) {
+    if (sqrt((mouseX-chargeSliderX)**2+(mouseY-555)**2) < 7.5) {
       fill(64)
       if (mouseIsPressed) {
         draggingChargeSlider = true
@@ -134,7 +143,7 @@ layout: sketch.njk
     } else {
       fill(96)
     }
-    ellipse(chargeSliderX, 355, 15, 15)
+    ellipse(chargeSliderX, 555, 15, 15)
 
     if (draggingChargeSlider) {
       chargeSliderX = max(min(mouseX, 165), 25)
@@ -143,12 +152,12 @@ layout: sketch.njk
       }
     }
 
-    if (sqrt((chargeSliderX-25)**2+(mouseY-355)**2) < 7.5) {
+    if (sqrt((chargeSliderX-25)**2+(mouseY-555)**2) < 7.5) {
       fill(64)
     } else {
       fill(96)
     }
-    ellipse(chargeSliderX, 355, 15, 15)
+    ellipse(chargeSliderX, 555, 15, 15)
 
 
 
@@ -157,16 +166,16 @@ layout: sketch.njk
 
     noStroke()
     fill(0)
-    text("Next mass: " + floor(nextMass), 20, 290)
-    text("Next charge: " + floor(nextChargeDensity), 20, 340)
+    text("Next mass: " + floor(nextMass), 20, 490)
+    text("Next charge: " + floor(nextChargeDensity), 20, 540)
 
     stroke(0)
     fill(255)
-    rect(200, 300, 50, 50)
+    rect(200, 500, 50, 50)
 
     noStroke()
     fill(128+nextChargeDensity, 128-nextChargeDensity, 128-nextChargeDensity)
-    ellipse(225, 325, sqrt(nextMass)*10, sqrt(nextMass)*10)
+    ellipse(225, 525, sqrt(nextMass)*10, sqrt(nextMass)*10)
     
 
 
@@ -178,7 +187,7 @@ layout: sketch.njk
 
   // create new particle on click
   function mousePressed() {
-    if (mouseY < 250) {
+    if (mouseY < 450) {
       particles.push(new Particle(mouseX, mouseY, nextMass, nextChargeDensity))
     }
   }
