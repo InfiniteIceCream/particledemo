@@ -5,6 +5,9 @@ layout: sketch.njk
 
 {% block sketch %}
 
+
+
+
   <script>
                                                               // Increase canvas size?
   let nextMass
@@ -21,6 +24,7 @@ layout: sketch.njk
       this.radius = sqrt(mass)*10
       this.chargeDensity = chargeDensity
       this.charge = this.chargeDensity * mass
+      this.collisions = 0
     }
 
     update() {
@@ -36,30 +40,37 @@ layout: sketch.njk
 
         if (dist !== 0) { // only find force from particles in a different position
           let angle = hypotenuse.heading()
-          let force = -(this.charge * p.charge)/dist // positive force = pull, negative force = push
+          let force = -(this.charge * p.charge)/dist/1000 // positive force = pull, negative force = push
           let forceVector = createVector(force*cos(angle), force*sin(angle))
 
           if (dist < (this.radius + p.radius) / 2) { // check for collision
             let relativeVelocity = this.velocity.sub(p.velocity)
+            this.velocity.add(p.velocity)
             let collisionVel = relativeVelocity.dot(hypotenuse)
-            let collisionVelVector = p5.Vector.fromAngle(angle, collisionVel)
-            this.velocity.sub(collisionVelVector)
-            p.velocity.add(collisionVelVector)
+            let collisionVelVector = p5.Vector.fromAngle(angle, collisionVel/2)
+            this.velocity.sub(collisionVelVector.div(this.mass))
+            collisionVelVector.mult(this.mass)
+            p.velocity.add(collisionVelVector.div(p.mass))
+            this.collisions += 1
+            p.collisions += 1
           }
-          
+
           netForce.add(forceVector)
         }
       }
 
       this.acceleration = createVector(netForce.x/this.mass, netForce.y/this.mass)
       this.velocity.add(this.acceleration) // Is velocity being set to accelaration for some reason?
-      this.position.add(this.velocity.mult(0.0001))
+      this.position.add(this.velocity)
+      
     }
 
     display() {
       noStroke()
       fill(128+this.chargeDensity, 128-this.chargeDensity, 128-this.chargeDensity)
       ellipse(this.position.x, this.position.y, this.radius, this.radius)
+      fill(0)
+      text(this.collisions, this.position.x, this.position.y)
     }
   }
 
@@ -86,7 +97,6 @@ layout: sketch.njk
     noStroke()
     fill(0, 0, 0)
     text("Number of particles: " + particles.length, 10, 20)
-    text("Charge slider x: " + chargeSliderX, 10, 40)
 
 
     // sliders
@@ -133,6 +143,14 @@ layout: sketch.njk
       }
     }
 
+    if (sqrt((chargeSliderX-25)**2+(mouseY-355)**2) < 7.5) {
+      fill(64)
+    } else {
+      fill(96)
+    }
+    ellipse(chargeSliderX, 355, 15, 15)
+
+
 
     nextMass = map(massSliderX, 25, 165, 1, 10)
     nextChargeDensity = map(chargeSliderX, 25, 165, -128, 128)
@@ -141,18 +159,19 @@ layout: sketch.njk
     fill(0)
     text("Next mass: " + floor(nextMass), 20, 290)
     text("Next charge: " + floor(nextChargeDensity), 20, 340)
-    
 
-    if (sqrt((mouseX-25)**2+(mouseY-355)**2) < 7.5) {
-      fill(64)
-    } else {
-      fill(96)
-    }
-    ellipse(chargeSliderX, 355, 15, 15)
+    stroke(0)
+    fill(255)
+    rect(200, 300, 50, 50)
+
+    noStroke()
+    fill(128+nextChargeDensity, 128-nextChargeDensity, 128-nextChargeDensity)
+    ellipse(225, 325, sqrt(nextMass)*10, sqrt(nextMass)*10)
+    
 
 
     // clear particles
-    if (keyIsDown(UP_ARROW)) {
+    if (keyIsDown(LEFT_ARROW)) {
       particles = []
     }
   }
@@ -163,6 +182,9 @@ layout: sketch.njk
       particles.push(new Particle(mouseX, mouseY, nextMass, nextChargeDensity))
     }
   }
+
+
+
 
   </script>
 {% endblock sketch %}
