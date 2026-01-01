@@ -10,10 +10,11 @@ layout: sketch.njk
 
   <script>
 
+  let forceMultiplier = 1
   let nextMass
   let nextChargeDensity
   let particles = []
-
+  const pi = Math.PI
 
   class Particle {
     constructor(x, y, mass, chargeDensity) {
@@ -40,7 +41,7 @@ layout: sketch.njk
 
         if (dist !== 0) { // only find force from particles in a different position
           let angle = hypotenuse.heading()
-          let force = -(this.charge * p.charge)/dist/1000 // positive force = pull, negative force = push
+          let force = -(this.charge * p.charge)/dist/1000*forceMultiplier // positive force = pull, negative force = push
           let forceVector = createVector(force*cos(angle), force*sin(angle))
 
           if (dist < (this.radius + p.radius) / 2) { // check for collision
@@ -61,12 +62,13 @@ layout: sketch.njk
         }
       }
 
+      // bounce off of walls
       if ((this.position.x < 0 + this.radius/2 && this.velocity.x < 0) || (this.position.x > width - this.radius/2 && this.velocity.x > 0)) {
-        this.velocity.x *= -1
+        this.velocity.x *= -0.8
       }
 
       if ((this.position.y < 0 + this.radius/2 && this.velocity.y < 0) || (this.position.y > height - 150 - this.radius/2 && this.velocity.y > 0)) {
-        this.velocity.y *= -1
+        this.velocity.y *= -0.8
       }
 
       this.acceleration = createVector(netForce.x/this.mass, netForce.y/this.mass)
@@ -79,9 +81,11 @@ layout: sketch.njk
       fill(128+this.chargeDensity, 128-this.chargeDensity, 128-this.chargeDensity)
       ellipse(this.position.x, this.position.y, this.radius, this.radius)
       fill(0)
-      text(this.collisions, this.position.x, this.position.y)
+      text(this.collisions, this.position.x, this.position.y) 
     }
   }
+
+
 
 
   function setup() {
@@ -93,6 +97,19 @@ layout: sketch.njk
   let chargeSliderX = 25
   let draggingMassSlider = false
   let draggingChargeSlider = false
+  let buttonPressed = false
+
+  let drawArrow = function (x, y, angle, length, endLength) {
+      let v1 = p5.Vector.fromAngle(angle, length)
+      let v2 = p5.Vector.fromAngle(angle-pi*3/4, endLength)
+      let v3 = p5.Vector.fromAngle(angle+pi*3/4, endLength)
+      let endpoint = createVector(x+v1.x, y+v1.y)
+      line(x, y, endpoint.x, endpoint.y)
+      line(endpoint.x, endpoint.y, endpoint.x+v2.x, endpoint.y+v2.y)
+      line(endpoint.x, endpoint.y, endpoint.x+v3.x, endpoint.y+v3.y)
+  }
+
+
 
 
   function draw() {
@@ -106,17 +123,21 @@ layout: sketch.njk
     noStroke()
     fill(0, 0, 0)
     text("Number of particles: " + particles.length, 10, 20)
+    text("Force multiplier: " + forceMultiplier, 10, 40)
 
 
-    // sliders
+    //  SETTINGS
     fill(192)
-    rect(0, height-150, width, 150)
-
+    stroke(0)
+    strokeWeight(1)
+    rect(-10, height-150, width+20, 160)
+    
     stroke(0)
     fill(128)
     rect(20, 500, 150, 10, 10)
     rect(20, 550, 150, 10, 10)
 
+    // sliders
     if (sqrt((mouseX-massSliderX)**2+(mouseY-505)**2) < 7.5) {
       fill(64)
       if (mouseIsPressed) {
@@ -128,7 +149,7 @@ layout: sketch.njk
     ellipse(massSliderX, 505, 15, 15)
 
     if (draggingMassSlider) {
-      massSliderX = max(min(mouseX, 165), 25)
+      massSliderX = constrain(mouseX, 25, 165)
       if (mouseIsPressed === false) {
         draggingMassSlider = false
       }
@@ -146,19 +167,13 @@ layout: sketch.njk
     ellipse(chargeSliderX, 555, 15, 15)
 
     if (draggingChargeSlider) {
-      chargeSliderX = max(min(mouseX, 165), 25)
+      chargeSliderX = constrain(mouseX, 25, 165)
       if (mouseIsPressed === false) {
         draggingChargeSlider = false
       }
     }
 
-    if (sqrt((chargeSliderX-25)**2+(mouseY-555)**2) < 7.5) {
-      fill(64)
-    } else {
-      fill(96)
-    }
     ellipse(chargeSliderX, 555, 15, 15)
-
 
 
     nextMass = map(massSliderX, 25, 165, 1, 10)
@@ -169,15 +184,82 @@ layout: sketch.njk
     text("Next mass: " + floor(nextMass), 20, 490)
     text("Next charge: " + floor(nextChargeDensity), 20, 540)
 
+
+    // next particle display
     stroke(0)
     fill(255)
-    rect(200, 500, 50, 50)
+    rect(200, 500, 50, 50, 10)
 
     noStroke()
     fill(128+nextChargeDensity, 128-nextChargeDensity, 128-nextChargeDensity)
     ellipse(225, 525, sqrt(nextMass)*10, sqrt(nextMass)*10)
     
+    stroke(128)
+    strokeWeight(10)
+    line(290, 470, 290, 580)
 
+
+    // attraction/repulsion
+    fill(160)
+    strokeWeight(1)
+    rect(330, 480, 140, 40, 20)
+    rect(330, 530, 140, 40, 20)
+
+    noStroke()
+    fill(255, 0, 0)
+    ellipse(350, 500, 20, 20)
+    ellipse(450, 500, 20, 20)
+    ellipse(350, 550, 20, 20)
+    fill(0, 255, 255)
+    ellipse(450, 550, 20, 20)
+
+
+    let arrowDir = pi*(0.5-0.5*forceMultiplier)
+    stroke(0)
+    strokeWeight(2)
+    drawArrow(350, 500, arrowDir+pi, 40, 10)
+    drawArrow(450, 500, arrowDir, 40, 10)
+    drawArrow(350, 550, arrowDir, 40, 10)
+    drawArrow(450, 550, arrowDir+pi, 40, 10)
+
+    // FLIP button
+    strokeWeight(4)
+    textAlign(CENTER, CENTER)
+    textStyle(BOLD)
+    textSize(15)
+    if (sqrt((mouseX - 525)**2 + (mouseY - 525)**2) < 25) {
+      if (mouseIsPressed) {
+        buttonPressed = true
+        textSize(12)
+        stroke(0, 48, 96)
+        fill(0, 96, 192)
+        ellipse(525, 525, 40, 40)
+        fill(0, 48, 96)
+      } else {
+        if (buttonPressed) {
+          forceMultiplier *= -1
+          buttonPressed = false
+        }
+        stroke(0, 48, 96)
+        fill(0, 96, 192)
+        ellipse(525, 525, 50, 50)
+        fill(0, 48, 96)
+      }
+    } else {
+      stroke(0, 64, 128)
+      fill(0, 128, 255)
+      ellipse(525, 525, 50, 50)
+      fill(0, 64, 128)
+    }
+    noStroke()
+    text("FLIP", 525, 525)
+    textAlign(LEFT, CENTER)
+    textStyle(NORMAL)
+    textSize(12)
+
+
+    // show forces, accelaration, velocity
+    
 
     // clear particles
     if (keyIsDown(LEFT_ARROW)) {
