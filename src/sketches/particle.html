@@ -44,21 +44,23 @@ layout: sketch.njk
           let force = -(this.charge * p.charge)/dist/1000*forceMultiplier // positive force = pull, negative force = push
           let forceVector = createVector(force*cos(angle), force*sin(angle))
 
-          if (dist < (this.radius + p.radius) / 2) { // check for collision
+
+          // check for collision
+          if (dist < (this.radius + p.radius) / 2) {
             let relativeVelocity = this.velocity.sub(p.velocity)
-            this.velocity.add(p.velocity)
-            let collisionVel = relativeVelocity.dot(hypotenuse)
-            if (collisionVel > 0) {
-              let collisionVelVector = p5.Vector.fromAngle(angle, collisionVel/2)
-              this.velocity.sub(collisionVelVector.div(this.mass))
-              collisionVelVector.mult(this.mass)
-              p.velocity.add(collisionVelVector.div(p.mass))
+            this.velocity.add(p.velocity) // undo "this.velocity.sub(p.velocity)"
+            let collisionSpeed = relativeVelocity.dot(hypotenuse)
+
+            if (collisionSpeed > 0) {
+              let collisionVelocity = p5.Vector.fromAngle(angle, collisionSpeed/8) // change 5 to some variable
+              this.velocity.sub(collisionVelocity.mult(p.mass/(p.mass+this.mass)))
+              p.velocity.add(collisionVelocity.mult(this.mass/(this.mass+p.mass)))
               this.collisions += 1
               p.collisions += 1
             }
+          } else {
+            netForce.add(forceVector)
           }
-
-          netForce.add(forceVector)
         }
       }
 
@@ -76,6 +78,7 @@ layout: sketch.njk
       this.position.add(this.velocity)
     }
 
+    // display the particles
     display() {
       noStroke()
       fill(128+this.chargeDensity, 128-this.chargeDensity, 128-this.chargeDensity)
@@ -91,6 +94,15 @@ layout: sketch.njk
   function setup() {
     let myCanvas = createCanvas(1000, 600)
     myCanvas.parent("sketch-holder")
+
+    // tests
+    let particleA = new Particle(200, 300, 10, 0)
+    particleA.velocity.x = 5
+    let particleB = new Particle(800, 300, 1, 0)
+    particleB.velocity.x = -5
+
+    particles.push(particleA)
+    particles.push(particleB)
   }
 
   let massSliderX = 25
@@ -126,18 +138,18 @@ layout: sketch.njk
     text("Force multiplier: " + forceMultiplier, 10, 40)
 
 
-    //  SETTINGS
+    //  settings bar
     fill(192)
     stroke(0)
     strokeWeight(1)
     rect(-10, height-150, width+20, 160)
     
+    // sliders
     stroke(0)
     fill(128)
     rect(20, 500, 150, 10, 10)
     rect(20, 550, 150, 10, 10)
-
-    // sliders
+    
     if (sqrt((mouseX-massSliderX)**2+(mouseY-505)**2) < 7.5) {
       fill(64)
       if (mouseIsPressed) {
@@ -176,13 +188,15 @@ layout: sketch.njk
     ellipse(chargeSliderX, 555, 15, 15)
 
 
-    nextMass = map(massSliderX, 25, 165, 1, 10)
-    nextChargeDensity = map(chargeSliderX, 25, 165, -128, 128)
+    nextMass = round(map(massSliderX, 25, 165, 1, 10))
+    massSliderX = map(nextMass, 1, 10, 25, 165)
+    nextChargeDensity = round(map(chargeSliderX, 25, 165, -128, 128))
+    chargeSliderX = map(nextChargeDensity, -128, 128, 25, 165)
 
     noStroke()
     fill(0)
-    text("Next mass: " + floor(nextMass), 20, 490)
-    text("Next charge: " + floor(nextChargeDensity), 20, 540)
+    text("Next mass: " + nextMass, 20, 490)
+    text("Next charge: " + nextChargeDensity, 20, 540)
 
 
     // next particle display
@@ -233,7 +247,7 @@ layout: sketch.njk
         textSize(12)
         stroke(0, 48, 96)
         fill(0, 96, 192)
-        ellipse(525, 525, 40, 40)
+        ellipse(540, 525, 40, 40)
         fill(0, 48, 96)
       } else {
         if (buttonPressed) {
@@ -242,20 +256,24 @@ layout: sketch.njk
         }
         stroke(0, 48, 96)
         fill(0, 96, 192)
-        ellipse(525, 525, 50, 50)
+        ellipse(540, 525, 50, 50)
         fill(0, 48, 96)
       }
     } else {
       stroke(0, 64, 128)
       fill(0, 128, 255)
-      ellipse(525, 525, 50, 50)
+      ellipse(540, 525, 50, 50)
       fill(0, 64, 128)
     }
     noStroke()
-    text("FLIP", 525, 525)
+    text("FLIP", 540, 525)
     textAlign(LEFT, CENTER)
     textStyle(NORMAL)
     textSize(12)
+
+    stroke(128)
+    strokeWeight(10)
+    line(600, 470, 600, 580)
 
 
     // show forces, accelaration, velocity
