@@ -6,9 +6,31 @@ layout: sketch.njk
 {% block sketch %}
 
 
-
-
   <script>
+
+
+  let dotProduct = function(a, b) {
+    return a.dot(b)
+  }
+/*
+  let collide = function(massA, velA, massB, velB, ABline) {
+    let angle = ABline.heading()
+    let relativeVel = velA.sub(velB)
+    velA.add(velB)
+    let collisionSpeed = relativeVel.dot(ABline)
+    if (collisionSpeed > 0) {
+      let colVelA = p5.Vector.fromAngle(angle, dotProduct(velA, ABline))
+      let colVelB = p5.Vector.fromAngle(angle, dotProduct(velB, ABline))
+      
+      let output = [ (velA.sub(colVelA)).add(colVelB.mult(massB/massA/100)) ]
+      colVelB.div(massB/massA)
+      output.push((velB.sub(colVelB)).add(colVelA.mult(massA/massB/100)))
+      return output
+    }
+    return [velA, velB]
+  }
+*/
+  let testVar = 0
 
   let forceMultiplier = 1
   let nextMass
@@ -22,12 +44,13 @@ layout: sketch.njk
       this.velocity = createVector(0, 0)
       this.acceleration = createVector(0, 0)
       this.mass = mass
+      this.momentum = createVector(0, 0)
       this.radius = sqrt(mass)*10
       this.chargeDensity = chargeDensity
       this.charge = this.chargeDensity * mass
       this.collisions = 0
     }
-
+    
     update() {
 
       // find net force from other particles
@@ -49,15 +72,18 @@ layout: sketch.njk
           if (dist < (this.radius + p.radius) / 2) {
             let relativeVelocity = this.velocity.sub(p.velocity)
             this.velocity.add(p.velocity) // undo "this.velocity.sub(p.velocity)"
-            let collisionSpeed = relativeVelocity.dot(hypotenuse)
+            let collisionSpeed = dotProduct(relativeVelocity, hypotenuse)
 
-            if (collisionSpeed > 0) {
+            if (collisionSpeed > 0) { // finalVelB  =  initVelA * massA / massB
               let collisionVelocity = p5.Vector.fromAngle(angle, collisionSpeed/8) // change 5 to some variable
-              this.velocity.sub(collisionVelocity.mult(p.mass/(p.mass+this.mass)))
-              p.velocity.add(collisionVelocity.mult(this.mass/(this.mass+p.mass)))
-              this.collisions += 1
-              p.collisions += 1
+              let colVelA = collisionVelocity.mult(this.mass/(this.mass+p.mass))
+              let colVelB = collisionVelocity.mult(p.mass/(this.mass+p.mass))
+              this.velocity.sub(colVelA)
+              p.velocity.add(colVelB)
+              
             }
+            this.collisions += 1
+            p.collisions += 1
           } else {
             netForce.add(forceVector)
           }
@@ -76,6 +102,8 @@ layout: sketch.njk
       this.acceleration = createVector(netForce.x/this.mass, netForce.y/this.mass)
       this.velocity.add(this.acceleration)
       this.position.add(this.velocity)
+      this.momentum = this.velocity.mult(this.mass)
+      this.velocity.div(this.mass)
     }
 
     // display the particles
@@ -84,7 +112,7 @@ layout: sketch.njk
       fill(128+this.chargeDensity, 128-this.chargeDensity, 128-this.chargeDensity)
       ellipse(this.position.x, this.position.y, this.radius, this.radius)
       fill(0)
-      text(this.collisions, this.position.x, this.position.y) 
+      //text(this.collisions, this.position.x, this.position.y) 
     }
   }
 
@@ -96,10 +124,10 @@ layout: sketch.njk
     myCanvas.parent("sketch-holder")
 
     // tests
-    let particleA = new Particle(200, 300, 10, 0)
+    let particleA = new Particle(200, 310, 10, 0)
     particleA.velocity.x = 5
-    let particleB = new Particle(800, 300, 1, 0)
-    particleB.velocity.x = -5
+    let particleB = new Particle(300, 300, 1, 0)
+    particleB.velocity.x = 4
 
     particles.push(particleA)
     particles.push(particleB)
@@ -109,7 +137,12 @@ layout: sketch.njk
   let chargeSliderX = 25
   let draggingMassSlider = false
   let draggingChargeSlider = false
+
   let buttonPressed = false
+
+  let showVelocity
+  let showAcceleration = false
+  let showForces
 
   let drawArrow = function (x, y, angle, length, endLength) {
       let v1 = p5.Vector.fromAngle(angle, length)
@@ -136,6 +169,7 @@ layout: sketch.njk
     fill(0, 0, 0)
     text("Number of particles: " + particles.length, 10, 20)
     text("Force multiplier: " + forceMultiplier, 10, 40)
+    text(testVar, 10, 60)
 
 
     //  settings bar
@@ -274,9 +308,6 @@ layout: sketch.njk
     stroke(128)
     strokeWeight(10)
     line(600, 470, 600, 580)
-
-
-    // show forces, accelaration, velocity
     
 
     // clear particles
