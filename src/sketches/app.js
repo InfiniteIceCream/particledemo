@@ -1,12 +1,3 @@
----
-title: Particle
-layout: sketch.njk
----
-
-{% block sketch %}
-
-
-  <script>
 let dotProduct = function (a, b) {
   return a.dot(b);
 };
@@ -329,13 +320,3 @@ function mousePressed() {
     particles.push(new Particle(mouseX, mouseY, nextMass, nextChargeDensity));
   }
 }
-
-  </script>
-{% endblock sketch %}
-
-{% block content %}
-<p>Click to spawn a particle!</p>
-<div id="sketch-holder"></div>
-<pre><code>
-</code></pre>
-{% endblock content %}
